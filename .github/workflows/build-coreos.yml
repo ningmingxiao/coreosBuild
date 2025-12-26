@@ -1,0 +1,32 @@
+name: github-actions
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
+jobs:
+  setup-cosa-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+      - name: install podman
+        run: |
+          sudo apt install -y podman
+      - name: install cosa command
+        run: |
+          sudo cp scripts/cosa /usr/bin/
+
+      - name: run cosa init
+        shell: bash
+        working-directory: fcos
+        run: |
+          sudo -s
+          cosa init https://github.com/coreos/fedora-coreos-config -b stable
+
+      - name: build image
+        shell: bash
+        working-directory: fcos
+        run: |
+          sudo chmod 0666 /dev/kvm
+          sudo -s
+          cosa fetch
+          cosa build
+          tree -L 6
